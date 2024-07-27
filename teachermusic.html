@@ -1,0 +1,601 @@
+
+<html><head><base href="https://websim.ai/app/soundfont-keyboard">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>亮的~琴鍵揚音動你心</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom right, #8B4513, #D2691E);
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    color: #FFFFFF;
+    margin-bottom: 20px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+  .container {
+    background: linear-gradient(to bottom right, #D2B48C, #DEB887);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    width: 95%;
+    max-width: 1200px;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  select, button, input {
+    margin: 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  select:hover, button:hover {
+    background-color: #e0e0e0;
+  }
+  #instrument-select {
+    width: 200px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position-x: 95%;
+    background-position-y: 50%;
+  }
+  #current-instrument, #transpose-value {
+    margin-top: 10px;
+    font-style: italic;
+  }
+  .transpose-controls {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+  }
+  .transpose-controls button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+  }
+  #transpose-value {
+    margin: 0 10px;
+    width: 40px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  #keyboard {
+    display: flex;
+    justify-content: center;
+    background: linear-gradient(to bottom, #e0e0e0, #f0f0f0);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .key {
+    width: 30px;
+    height: 120px;
+    background-color: #f0f0f0;
+    border: 1px solid #000;
+    margin: 0 1px;
+    cursor: pointer;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.1s ease;
+  }
+  .key.black {
+    width: 20px;
+    height: 80px;
+    background-color: #000;
+    margin-left: -10px;
+    margin-right: -10px;
+    z-index: 1;
+  }
+  .key:active, .key.active {
+    background-color: #ddd;
+  }
+  .key.black:active, .key.black.active {
+    background-color: #333;
+  }
+  #loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 20;
+  }
+  #chord-pads {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+  }
+  .chord-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .chord-pad {
+    width: 100%;
+    aspect-ratio: 1;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+  .chord-pad:hover {
+    background-color: #45a049;
+  }
+  .chord-pad:active {
+    transform: scale(0.95);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>亮的~琴鍵揚音動你心</h1>
+    <div class="controls">
+      <select id="instrument-select">
+        <option value="">選擇樂器...</option>
+      </select>
+      <button id="record">錄音</button>
+      <button id="play">播放</button>
+      <button id="stop">停止</button>
+      <div class="transpose-controls">
+        <button id="transpose-down">-</button>
+        <input type="text" id="transpose-value" value="0" readonly>
+        <button id="transpose-up">+</button>
+      </div>
+    </div>
+    <div id="current-instrument"></div>
+    <div id="keyboard"></div>
+  </div>
+  <div id="chord-pads"></div>
+  <div id="loading">載入音色中...</div>
+  <div><a href="index.html" class="home-button">返回首頁</a></div>  
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
+  <script>
+    const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const keyMapping = {
+      'z': 'C2', 's': 'C#2', 'x': 'D2', 'd': 'D#2', 'c': 'E2', 'v': 'F2', 'g': 'F#2',
+      'b': 'G2', 'h': 'G#2', 'n': 'A2', 'j': 'A#2', 'm': 'B2',
+      'q': 'C3', '2': 'C#3', 'w': 'D3', '3': 'D#3', 'e': 'E3', 'r': 'F3', '5': 'F#3',
+      't': 'G3', '6': 'G#3', 'y': 'A3', '7': 'A#3', 'u': 'B3',
+      'i': 'C4', '9': 'C#4', 'o': 'D4', '0': 'D#4', 'p': 'E4', '[': 'F4', '=': 'F#4',
+      ']': 'G4', '\\': 'G#4', 'a': 'A4', 'l': 'A#4', ';': 'B4',
+      "'": 'C5', ',': 'C#5', '.': 'D5', '/': 'D#5'
+    };
+    const octaves = 4;
+    let currentInstrument = 'acoustic_grand_piano';
+    let soundFont;
+    let recording = false;
+    let recordedNotes = [];
+    let startTime;
+    let playbackTimeouts = [];
+    let transposeValue = 0;
+
+    const pressedKeys = new Set();
+
+    const chords = {
+      'C': ['C4', 'E4', 'G4'],
+      'D': ['D4', 'F#4', 'A4'],
+      'E': ['E4', 'G#4', 'B4'],
+      'F': ['F4', 'A4', 'C5'],
+      'G': ['G4', 'B4', 'D5'],
+      'A': ['A4', 'C#5', 'E5'],
+      'B': ['B4', 'D#5', 'F#5'],
+      'Cm': ['C4', 'D#4', 'G4'],
+      'Dm': ['D4', 'F4', 'A4'],
+      'Em': ['E4', 'G4', 'B4'],
+      'Fm': ['F4', 'G#4', 'C5'],
+      'Gm': ['G4', 'A#4', 'D5'],
+      'Am': ['A4', 'C5', 'E5'],
+      'Bm': ['B4', 'D5', 'F#5'],
+      'C7': ['C4', 'E4', 'G4', 'A#4'],
+      'D7': ['D4', 'F#4', 'A4', 'C5'],
+      'E7': ['E4', 'G#4', 'B4', 'D5'],
+      'F7': ['F4', 'A4', 'C5', 'D#5'],
+      'G7': ['G4', 'B4', 'D5', 'F5'],
+      'A7': ['A4', 'C#5', 'E5', 'G5'],
+      'B7': ['B4', 'D#5', 'F#5', 'A5']
+    };
+
+    function createKeyboard() {
+      const keyboard = document.getElementById('keyboard');
+      for (let octave = 2; octave < 2 + octaves; octave++) {
+        keys.forEach((note) => {
+          const key = document.createElement('div');
+          key.className = `key ${note.includes('#') ? 'black' : 'white'}`;
+          key.dataset.note = `${note}${octave}`;
+          key.addEventListener('mousedown', () => playNote(`${note}${octave}`));
+          key.addEventListener('mouseup', () => releaseNote(`${note}${octave}`));
+          key.addEventListener('mouseleave', () => releaseNote(`${note}${octave}`));
+          keyboard.appendChild(key);
+        });
+      }
+    }
+
+    function createChordPads() {
+      const chordPads = document.getElementById('chord-pads');
+      const rows = [
+        ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        ['Cm', 'Dm', 'Em', 'Fm', 'Gm', 'Am', 'Bm'],
+        ['C7', 'D7', 'E7', 'F7', 'G7', 'A7', 'B7']
+      ];
+      
+      rows.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'chord-row';
+        row.forEach(chordName => {
+          const pad = document.createElement('button');
+          pad.className = 'chord-pad';
+          pad.textContent = chordName;
+          pad.addEventListener('mousedown', () => playChord(chordName));
+          pad.addEventListener('mouseup', () => releaseChord(chordName));
+          pad.addEventListener('mouseleave', () => releaseChord(chordName));
+          rowDiv.appendChild(pad);
+        });
+        chordPads.appendChild(rowDiv);
+      });
+    }
+
+    createKeyboard();
+    createChordPads();
+
+    const instrumentNameMap = {
+      'accordion': '手風琴',
+      'acoustic_bass': '原聲貝斯',
+      'acoustic_grand_piano': '原聲大鋼琴',
+      'acoustic_guitar_nylon': '尼龍弦吉他',
+      'acoustic_guitar_steel': '鋼弦吉他',
+      'agogo': '阿哥哥鼓',
+      'alto_sax': '中音薩克斯風',
+      'applause': '掌聲',
+      'bagpipe': '風笛',
+      'banjo': '班卓琴',
+      'baritone_sax': '上低音薩克斯風',
+      'bassoon': '巴松管',
+      'bird_tweet': '鳥鳴',
+      'blown_bottle': '吹瓶聲',
+      'brass_section': '銅管樂團',
+      'breath_noise': '呼吸聲',
+      'bright_acoustic_piano': '明亮的原聲鋼琴',
+      'celesta': '鋼片琴',
+      'cello': '大提琴',
+      'choir_aahs': '合唱團啊音',
+      'church_organ': '教堂風琴',
+      'clarinet': '單簧管',
+      'clavinet': '電翼琴',
+      'contrabass': '低音提琴',
+      'distortion_guitar': '失真吉他',
+      'drawbar_organ': '拉桿風琴',
+      'dulcimer': '大揚琴',
+      'electric_bass_finger': '指彈電貝斯',
+      'electric_bass_pick': '撥片電貝斯',
+      'electric_grand_piano': '電鋼琴',
+      'electric_guitar_clean': '清音電吉他',
+      'electric_guitar_jazz': '爵士電吉他',
+      'electric_guitar_muted': '悶音電吉他',
+      'electric_piano_1': '電鋼琴1',
+      'electric_piano_2': '電鋼琴2',
+      'english_horn': '英國管',
+      'fiddle': '小提琴',
+      'flute': '長笛',
+      'french_horn': '法國號',
+      'fretless_bass': '無品貝斯',
+      'fx_1_rain': '效果音1（雨聲）',
+      'fx_2_soundtrack': '效果音2（電影配樂）',
+      'fx_3_crystal': '效果音3（水晶）',
+      'fx_4_atmosphere': '效果音4（氛圍）',
+      'fx_5_brightness': '效果音5（明亮）',
+      'fx_6_goblins': '效果音6（小妖精）',
+      'fx_7_echoes': '效果音7（回聲）',
+      'fx_8_scifi': '效果音8（科幻）',
+      'glockenspiel': '鐘琴',
+      'guitar_fret_noise': '吉他指板噪音',
+      'guitar_harmonics': '吉他泛音',
+      'harmonica': '口琴',
+      'harpsichord': '大鍵琴',
+      'helicopter': '直升機聲',
+      'honkytonk_piano': '酒吧鋼琴',
+      'kalimba': '卡林巴琴',
+      'koto': '日本箏',
+      'lead_1_square': '主音1（方波）',
+      'lead_2_sawtooth': '主音2（鋸齒波）',
+      'lead_3_calliope': '主音3（汽笛風琴）',
+      'lead_4_chiff': '主音4（合成吹管）',
+      'lead_5_charang': '主音5（合成吉他）',
+      'lead_6_voice': '主音6（人聲）',
+      'lead_7_fifths': '主音7（五度音）',
+      'lead_8_bass__lead': '主音8（貝斯主音）',
+      'marimba': '馬林巴琴',
+      'melodic_tom': '通透音湯姆鼓',
+      'music_box': '八音盒',
+      'muted_trumpet': '弱音小號',
+      'oboe': '雙簧管',
+      'ocarina': '陶笛',
+      'orchestra_hit': '管弦樂重擊',
+      'orchestral_harp': '豎琴',
+      'overdriven_guitar': '過載吉他',
+      'pad_1_new_age': '合成音色1（新世紀）',
+      'pad_2_warm': '合成音色2（溫暖）',
+      'pad_3_polysynth': '合成音色3（複音合成器）',
+      'pad_4_choir': '合成音色4（合唱團）',
+      'pad_5_bowed': '合成音色5（弓弦）',
+      'pad_6_metallic': '合成音色6（金屬）',
+      'pad_7_halo': '合成音色7（光環）',
+      'pad_8_sweep': '合成音色8（掃頻）',
+      'pan_flute': '排笛',
+      'percussive_organ': '打擊風琴',
+      'piccolo': '短笛',
+      'pizzicato_strings': '撥弦',
+      'recorder': '豎笛',
+      'reed_organ': '簧風琴',
+      'reverse_cymbal': '反轉鈸聲',
+      'rock_organ': '搖滾風琴',
+      'seashore': '海浪聲',
+      'shakuhachi': '尺八',
+      'shamisen': '三味線',
+      'shanai': '嗩吶',
+      'sitar': '西塔琴',
+      'slap_bass_1': '擊弦貝斯1',
+      'slap_bass_2': '擊弦貝斯2',
+      'soprano_sax': '高音薩克斯風',
+      'steel_drums': '鋼鼓',
+      'string_ensemble_1': '弦樂合奏1',
+      'string_ensemble_2': '弦樂合奏2',
+      'synth_bass_1': '合成貝斯1',
+      'synth_bass_2': '合成貝斯2',
+      'synth_brass_1': '合成銅管1',
+      'synth_brass_2': '合成銅管2',
+      'synth_choir': '合成人聲合唱',
+      'synth_drum': '合成鼓',
+      'synth_strings_1': '合成弦樂1',
+      'synth_strings_2': '合成弦樂2',
+      'taiko_drum': '太鼓',
+      'tango_accordion': '探戈手風琴',
+      'telephone_ring': '電話鈴聲',
+      'tenor_sax': '次中音薩克斯風',
+      'timpani': '定音鼓',
+      'tinkle_bell': '叮噹鈴',
+      'tremolo_strings': '顫音弦樂',
+      'trombone': '長號',
+      'trumpet': '小號',
+      'tuba': '大號',
+      'tubular_bells': '管鐘',
+      'vibraphone': '顫音琴',
+      'viola': '中提琴',
+      'violin': '小提琴',
+      'voice_oohs': '人聲嗚音',
+      'whistle': '口哨',
+      'woodblock': '木魚',
+      'xylophone': '木琴'
+    };
+
+    async function loadSoundFonts() {
+      const response = await fetch('https://gleitz.github.io/midi-js-soundfonts/MusyngKite/names.json');
+      const instruments = await response.json();
+      const select = document.getElementById('instrument-select');
+      instruments.forEach(instrument => {
+        const option = document.createElement('option');
+        option.value = instrument;
+        option.textContent = instrumentNameMap[instrument] || instrument.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        select.appendChild(option);
+      });
+      loadSoundFont('acoustic_grand_piano');
+    }
+
+    async function loadSoundFont(instrument) {
+      document.getElementById('loading').style.display = 'block';
+      currentInstrument = instrument;
+      const response = await fetch(`https://gleitz.github.io/midi-js-soundfonts/MusyngKite/${instrument}-mp3.js`);
+      const soundFontData = await response.text();
+      eval(soundFontData);
+      soundFont = MIDI.Soundfont[instrument];
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('current-instrument').textContent = `當前樂器: ${instrumentNameMap[instrument] || instrument.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+    }
+
+    function transposeNote(note) {
+      const [noteName, octave] = [note.slice(0, -1), parseInt(note.slice(-1))];
+      let noteIndex = keys.indexOf(noteName);
+      noteIndex += transposeValue;
+
+      let newOctave = octave + Math.floor(noteIndex / 12);
+      noteIndex = (noteIndex + 12) % 12; // Ensure positive index
+
+      return `${keys[noteIndex]}${newOctave}`;
+    }
+
+    function playNote(note) {
+      if (!soundFont) return;
+      
+      const transposedNote = transposeNote(note);
+      if (soundFont[transposedNote]) {
+        let sound = new Howl({
+          src: [soundFont[transposedNote]],
+          format: ['mp3'],
+          volume: 1.5 // Increase volume here (1.0 is the default, 2.0 would be twice as loud)
+        });
+        
+        sound.play();
+        
+        if (recording) {
+          const time = Date.now() - startTime;
+          recordedNotes.push({ note, time });
+        }
+
+        highlightKey(note, '#4169E1'); // Royal Blue
+      } else {
+        console.log(`No sound found for note: ${transposedNote}`);
+      }
+    }
+
+    function releaseNote(note) {
+      unhighlightKey(note);
+    }
+
+    function playChord(chordName) {
+      if (!soundFont) return;
+      
+      chords[chordName].forEach(note => {
+        playNote(note);
+        highlightKey(note, '#4169E1'); // Royal Blue
+      });
+
+      if (recording) {
+        const time = Date.now() - startTime;
+        recordedNotes.push({ chord: chordName, time });
+      }
+    }
+
+    function releaseChord(chordName) {
+      chords[chordName].forEach(note => {
+        releaseNote(note);
+        unhighlightKey(note);
+      });
+    }
+
+    function highlightKey(note, color) {
+      const key = document.querySelector(`.key[data-note="${note}"]`);
+      if (key) {
+        key.style.backgroundColor = color;
+      }
+    }
+
+    function unhighlightKey(note) {
+      const key = document.querySelector(`.key[data-note="${note}"]`);
+      if (key) {
+        key.style.backgroundColor = '';
+      }
+    }
+
+    function startRecording() {
+      recording = true;
+      recordedNotes = [];
+      startTime = Date.now();
+      document.getElementById('record').textContent = '停止錄音';
+    }
+
+    function stopRecording() {
+      recording = false;
+      document.getElementById('record').textContent = '錄音';
+    }
+
+    function playRecording() {
+      if (recordedNotes.length === 0) return;
+      stopPlayback(); // Stop any ongoing playback
+      const playbackStartTime = Date.now();
+      recordedNotes.forEach(({ note, chord, time }) => {
+        const timeout = setTimeout(() => {
+          if (note) {
+            playNote(note);
+            setTimeout(() => releaseNote(note), 200);
+          } else if (chord) {
+            playChord(chord);
+            setTimeout(() => releaseChord(chord), 200);
+          }
+        }, time);
+        playbackTimeouts.push(timeout);
+      });
+    }
+
+    function stopPlayback() {
+      // Clear all scheduled playback timeouts
+      playbackTimeouts.forEach(timeout => clearTimeout(timeout));
+      playbackTimeouts = [];
+      
+      // Stop all currently playing sounds
+      Howler.stop();
+      
+      // Reset all key colors
+      document.querySelectorAll('.key').forEach(key => {
+        key.classList.remove('active');
+      });
+    }
+
+    function updateTransposeDisplay() {
+      const transposeInput = document.getElementById('transpose-value');
+      transposeInput.value = transposeValue >= 0 ? `+${transposeValue}` : transposeValue;
+    }
+
+    loadSoundFonts();
+
+    document.getElementById('instrument-select').addEventListener('change', (e) => loadSoundFont(e.target.value));
+    document.getElementById('record').addEventListener('click', () => {
+      if (recording) {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    });
+    document.getElementById('play').addEventListener('click', playRecording);
+    document.getElementById('stop').addEventListener('click', stopPlayback);
+
+    document.getElementById('transpose-down').addEventListener('click', () => {
+      transposeValue = Math.max(transposeValue - 1, -12);
+      updateTransposeDisplay();
+    });
+
+    document.getElementById('transpose-up').addEventListener('click', () => {
+      transposeValue = Math.min(transposeValue + 1, 12);
+      updateTransposeDisplay();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      const note = keyMapping[e.key.toLowerCase()];
+      if (note && !pressedKeys.has(note)) {
+        pressedKeys.add(note);
+        playNote(note);
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const note = keyMapping[e.key.toLowerCase()];
+      if (note) {
+        pressedKeys.delete(note);
+        releaseNote(note);
+      }
+    });
+
+    // Initialize transpose display
+    updateTransposeDisplay();
+  </script>
+</body></html>

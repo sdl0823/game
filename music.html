@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KTV式MV播放器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #videoPlayer {
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>KTV式MV播放器</h1>
+    <video id="videoPlayer" width="1024" height="768" controls>
+        <source src="music/video1.mp4" type="video/mp4">
+        您的瀏覽器不支持HTML5影片播放。
+    </video>
+	<div><button onclick="toggleAudio()">切換音樂/MV</button></div>
+    <div id="controls">
+		
+        <button onclick="changeSong('music/雪影的禮物.mp4')">雪影的禮物</button>
+        <button onclick="changeSong('music/冰月的魔法水晶.mp4')">冰月的魔法水晶</button>
+        <button onclick="changeSong('music/快樂雨中舞.mp4')">快樂雨中舞</button>
+		<button onclick="changeSong('music/心語與茶茶的美好回憶.mp4')">心語與茶茶的美好回憶</button>
+		<button onclick="changeSong('music/月下粽語.mp4')">月下粽語</button>
+		<button onclick="changeSong('music/霓虹的奇蹟.mp4')">霓虹的奇蹟</button>
+		<button onclick="changeSong('music/王女の魔法.mp4')">王女の魔法</button>
+		<button onclick="changeSong('music/藍色和粉紅.mp4')">藍色和粉紅</button>
+		<h2>youtube 歌曲</h2>		
+		<button onclick="changeSong('ytmusic/艾瑞爾的飛行.mp4')">艾瑞爾的飛行</button>       
+		<button onclick="changeSong('ytmusic/Ariel's Flight.mp4')">Ariel's Flight</button>
+		<button onclick="changeSong('ytmusic/アリエルの飛行.mp4')">アリエルの飛行</button>
+		<button onclick="changeSong('ytmusic/霓虹的奇蹟.mp4')">霓虹的奇蹟</button>
+		<button onclick="changeSong('ytmusic/心語與茶茶的美好回憶.mp4')">心語與茶茶的美好回憶</button>
+		<button onclick="changeSong('ytmusic/唱歌小九尾.mp4')">唱歌小九尾</button>
+		<button onclick="changeSong('ytmusic/涙の花.mp4')">涙の花</button>
+		<button onclick="changeSong('ytmusic/舊時光之窗－窗外的傳奇.mp4')">舊時光之窗－窗外的傳奇</button>
+		<button onclick="changeSong('ytmusic/冰封瞬間.mp4')">冰封瞬間</button>
+		<button onclick="changeSong('ytmusic/In Search of Truth.mp4')">In Search of Truth</button>
+		<button onclick="changeSong('ytmusic/情感的網.mp4')">情感的網</button>
+		<button onclick="changeSong('ytmusic/生命節奏的讚歌.mp4')">生命節奏的讚歌</button>
+		<button onclick="changeSong('ytmusic/Night's Dialogue.mp4')">Night's Dialogue</button>
+		<button onclick="changeSong('ytmusic/時光之聲：遺跡的回音.mp4')">時光之聲：遺跡的回音</button>
+		<button onclick="changeSong('ytmusic/Labyrinth of Light Finding Your Way Inside.mp4')">Labyrinth of Light Finding Your Way Inside</button>
+		<button onclick="changeSong('ytmusic/記憶之幻：真相與謊言的迷霧.mp4')">記憶之幻：真相與謊言的迷霧</button>
+		<button onclick="changeSong('ytmusic/窓辺の季節時の旋律.mp4')">窓辺の季節時の旋律</button>
+		<button onclick="changeSong('ytmusic/邊緣視界：探索消逝的界限.mp4')">邊緣視界：探索消逝的界限</button>
+    </div>
+	<div><a href="index.html" class="home-button">返回首頁</a></div>
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        let isAudioOnly = false;
+
+        function changeSong(videoSource) {
+            videoPlayer.src = videoSource;
+            videoPlayer.play();
+        }
+
+        function toggleAudio() {
+            if (isAudioOnly) {
+                videoPlayer.style.display = 'block';
+                isAudioOnly = false;
+            } else {
+                videoPlayer.style.display = 'none';
+                isAudioOnly = true;
+            }
+        }
+    </script>
+</body>
+</html>
